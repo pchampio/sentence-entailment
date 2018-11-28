@@ -36,6 +36,3 @@ Fields:
 
 - textual entailment gold label (NEUTRAL, ENTAILMENT, or CONTRADICTION)
 
-
-The last two fields are left empty in this test set. They should be filled in with the system scores 
-(following the instructions in http://alt.qcri.org/semeval2014/task1/index.php?id=task-guidelines).
