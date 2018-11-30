@@ -13,9 +13,17 @@ Fields:
  - sentence B
  - semantic relatedness gold label (on a 1-5 continuous scale)
  - textual entailment gold label (NEUTRAL, ENTAILMENT, or CONTRADICTION)
+ 
+##### Examples of sentence pairs with their gold entailment labels.
 
-The SICK data set is released under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 
-Unported License (http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US)
+Entailment label | Example
+------------     | -------------
+| ENTAILMENT     | A: “Two teams are competing in a football match” <br/>B: “Two groups of people are playing football” |
+| CONTRADICTION  | A: “The brown horse is near a red barrel at the rodeo” <br/>B: “The brown horse is far from a red barrel at the rodeo” |
+| NEUTRAL        | A: “A man in a black jacket is doing tricks on a motorbike”<br/>B: “A person is riding the bicycle on one wheel”
+
+_The SICK data set is released under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 
+Unported License (http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US)_
 
 ### Evaluation
 
