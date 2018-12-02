@@ -30,3 +30,5 @@ Unported License (http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US)_
 Systems are evaluated on classification accuracy (the percent of labels that are
 predicted correctly) for every sentence pairs. We are also interested in the precision/recall scores
 for each class as well as a confusion matrix.
+
+### [Paper](http://alt.qcri.org/semeval2014/cdrom/pdf/SemEval2014001.pdf)
