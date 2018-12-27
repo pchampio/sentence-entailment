@@ -31,7 +31,11 @@ Systems are evaluated on classification accuracy (the percent of labels that are
 predicted correctly) for every sentence pairs. We are also interested in the precision/recall scores
 for each class as well as a confusion matrix.
 
-> Papers:  
+### Source code
+To wrap your head around our pipeline take a look at the [baseline](https://github.com/Drakirus/sentence-entailment/blob/master/baseline.ipynb) notebook.  
+Building upon the baseline we proposed enhancements (written in the `.py` files). 
+
+### Papers
 > [SemEval-2014](http://alt.qcri.org/semeval2014/cdrom/pdf/SemEval2014001.pdf)  
 > [ Denotational and Distributional Approach to Semantics](http://www.aclweb.org/anthology/S14-2055)  
 > [SentEval: An Evaluation Toolkit for Universal Sentence Representations](https://arxiv.org/abs/1803.05449)  
