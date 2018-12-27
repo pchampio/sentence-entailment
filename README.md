@@ -31,4 +31,8 @@ Systems are evaluated on classification accuracy (the percent of labels that are
 predicted correctly) for every sentence pairs. We are also interested in the precision/recall scores
 for each class as well as a confusion matrix.
 
-### [Paper](http://alt.qcri.org/semeval2014/cdrom/pdf/SemEval2014001.pdf)
+> Papers:
+> [SemEval-2014](http://alt.qcri.org/semeval2014/cdrom/pdf/SemEval2014001.pdf)
+> [ Denotational and Distributional Approach to Semantics](http://www.aclweb.org/anthology/S14-2055)
+> [SentEval: An Evaluation Toolkit for Universal Sentence Representations](https://arxiv.org/abs/1803.05449)
+>[Supervised Learning of Universal Sentence Representations from Natural Language Inference Data](https://arxiv.org/abs/1705.02364)
