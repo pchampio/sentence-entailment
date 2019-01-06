@@ -8,12 +8,12 @@ import torch
 def _vprint(*args, **kwargs): None
 
 
-class RNNClassifier(nn.Module):
+class RNNClassifierBase(nn.Module):
     # Our model
 
     def __init__(self, input_voc_size, embedding_size, hidden_size,
                  device="cpu"):
-        super(RNNClassifier, self).__init__()
+        super(RNNClassifierBase, self).__init__()
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size

@@ -4,14 +4,17 @@
 # Sentences loading
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset
 
 from gensim import corpora
 
+from module.utils import find_first
 
-class SickDataset(Dataset):
+
+class SickDatasetBase(Dataset):
     endOfSentence = '</s>'
     startOfSentence = '<s>'
     separator2Sentences = '<sep>'
@@ -55,6 +58,20 @@ class SickDataset(Dataset):
             keep_tokens=self.tokens)
         return dictionary
 
+    def serie_2_idx(self, sentence):
+        """
+        sentence of words -> array of idx
+        Adds unknown to the voc (idx = len(dictionary)),
+        len(dictionary) = vocabulary_size
+        Adds one to each (no tokens at 0, even <unk>)
+        0 is for the padding when using mini-batch so + 1
+        """
+        return np.array(
+            self.dictionary.doc2idx(sentence,
+                                    unknown_word_index=self.vocabulary_size
+                                    )
+        ) + 1
+
     def __init__(self, df, vocabulary_size, dic=None):
         self.vocabulary_size = vocabulary_size
 
@@ -73,17 +90,7 @@ class SickDataset(Dataset):
         else:
             self.dictionary = dic
 
-        # sentence of words -> array of idx
-        # Adds unknown to the voc (idx = len(dictionary)),
-        #  len(dictionary) = vocabulary_size
-        # Adds one to each (no tokens at 0, even <unk>)
-        # 0 is for the padding when using mini-batch
-        df["word_idx"] = df["sentence_AB"].apply(
-            lambda word: np.array(
-                self.dictionary.doc2idx(word,
-                                        unknown_word_index=vocabulary_size)
-            ) + 1
-        )
+        df["word_idx"] = df["sentence_AB"].apply(self.serie_2_idx)
 
         self.df = df
 
@@ -164,3 +171,41 @@ class SickDataset(Dataset):
 
     def __len__(self):
         return len(self.df)
+
+    def pprint(self):
+        print(pd.DataFrame(list(zip(self.getRef(2), self[2][0]))).T)
+
+
+class SickDatasetDouble(SickDatasetBase):
+    def __init__(self, df, vocabulary_size, dic=None):
+        SickDatasetBase.__init__(self, df, vocabulary_size, dic=None)
+
+        splited = df['sentence_AB'].apply(self.split)
+        self.splited = splited
+
+        self.word_idx_splited = [
+            self.serie_2_idx(splited[0]),
+            self.serie_2_idx(splited[1])
+        ]
+
+    def getRef(self, index):
+        return self.splited[index]
+
+    def split(self, serie, delimiteur='<sep>'):
+        sep = find_first(delimiteur, serie)
+        return [
+            np.concatenate((serie[:sep], [self.endOfSentence])),
+            np.concatenate(([self.startOfSentence], serie[sep + 1:])),
+        ]
+
+    def __getitem__(self, index):
+        return (
+            self.serie_2_idx(self.splited[index][0]),
+            self.serie_2_idx(self.splited[index][1]),
+            self.df['entailment_id'][index])
+
+    def pprint(self):
+        """
+        Only print the first sentence
+        """
+        print(pd.DataFrame(list(zip(self.getRef(2)[0], self[2][0]))).T)
