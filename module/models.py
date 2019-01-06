@@ -4,12 +4,15 @@
 from torch import nn
 import torch
 
+
 def _vprint(*args, **kwargs): None
+
 
 class RNNClassifier(nn.Module):
     # Our model
 
-    def __init__(self, input_voc_size, embedding_size, hidden_size, device="cpu"):
+    def __init__(self, input_voc_size, embedding_size, hidden_size,
+                 device="cpu"):
         super(RNNClassifier, self).__init__()
 
         self.input_voc_size = input_voc_size
@@ -18,12 +21,13 @@ class RNNClassifier(nn.Module):
         self.rnn_out_size = hidden_size * 2
         self.device = device
 
-
         self.num_classes = 3
 
         # Add the padding token (0) (+1 to voc_size)
-        # Pads the output with the embedding vector at padding_idx whenever it encounters the index..
-        self.embedding = nn.Embedding(input_voc_size+1, embedding_size, padding_idx=0)
+        # Pads the output with the embedding vector at padding_idx whenever it
+        # encounters the index..
+        self.embedding = nn.Embedding(input_voc_size+1, embedding_size,
+                                      padding_idx=0)
         # Load the pretrained embeddings
         # self.embedding.weight = nn.Parameter(pretrained_emb_vec)
         # embeddings fine-tuning
@@ -45,11 +49,13 @@ class RNNClassifier(nn.Module):
         vprint("\nsize input", x.size())
         batch_size = x.size(0)
 
-        # Initialize hidden (num_layers * num_directions, batch_size, hidden_size)
+        # Initialize hidden (num_layers * num_directions, batch_size,
+        # hidden_size)
         h_0 = torch.zeros(2, batch_size, self.hidden_size)
         vprint("size hidden init", h_0.size())
 
-        # When creating new variables inside a model (like the hidden state in an RNN/GRU/LSTM),
+        # When creating new variables inside a model (like the hidden state in
+        # an RNN/GRU/LSTM),
         # make sure to also move them to the device (GPU or CPU).
         h_0 = h_0.to(self.device)
 
@@ -66,7 +72,6 @@ class RNNClassifier(nn.Module):
 
         rnn_out = torch.cat((hidden[0], hidden[1]), 1)
         vprint("size rnn out", rnn_out.size())
-
 
         # Use the last layer output as FC's input
         layout_fc1 = self.fc1(rnn_out)

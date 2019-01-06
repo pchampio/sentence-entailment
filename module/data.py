@@ -4,16 +4,15 @@
 # Sentences loading
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset
-from torch.utils.data.dataloader import DataLoader
 
 from gensim import corpora
 
+
 class SickDataset(Dataset):
-    endOfSentence   = '</s>'
+    endOfSentence = '</s>'
     startOfSentence = '<s>'
     separator2Sentences = '<sep>'
 
@@ -39,7 +38,8 @@ class SickDataset(Dataset):
         """
         Convert text Label into label id
         """
-        reverse_dict = {v: k for k, v in  dict(enumerate(self.text_label)).items()}
+        reverse_dict = {v: k for k, v in
+                        dict(enumerate(self.text_label)).items()}
         return series.map(reverse_dict)
 
     def series_2_dict(self, series, keep_n):
@@ -55,12 +55,12 @@ class SickDataset(Dataset):
             keep_tokens=self.tokens)
         return dictionary
 
-
     def __init__(self, df, vocabulary_size, dic=None):
         self.vocabulary_size = vocabulary_size
 
         # Label text as ids
-        df["entailment_id"] = self.series_text_2_labelID(df['entailment_judgment'])
+        df["entailment_id"] = self.series_text_2_labelID(
+            df['entailment_judgment'])
 
         # Add <s>,</s>,<sep> tokens to the vocabulary
         df['sentence_AB'] = df.apply(self.join_sentence, axis=1)
@@ -68,16 +68,21 @@ class SickDataset(Dataset):
         # check if the dictionary is given
         if dic is None:
             # Create the Dictionary
-            self.dictionary = self.series_2_dict(df['sentence_AB'], vocabulary_size)
+            self.dictionary = self.series_2_dict(df['sentence_AB'],
+                                                 vocabulary_size)
         else:
             self.dictionary = dic
 
         # sentence of words -> array of idx
-        # Adds unknown to the voc (idx = len(dictionary)), len(dictionary) = vocabulary_size
+        # Adds unknown to the voc (idx = len(dictionary)),
+        #  len(dictionary) = vocabulary_size
         # Adds one to each (no tokens at 0, even <unk>)
         # 0 is for the padding when using mini-batch
         df["word_idx"] = df["sentence_AB"].apply(
-            lambda word: np.array(self.dictionary.doc2idx(word, unknown_word_index=vocabulary_size)) + 1
+            lambda word: np.array(
+                self.dictionary.doc2idx(word,
+                                        unknown_word_index=vocabulary_size)
+            ) + 1
         )
 
         self.df = df
@@ -125,14 +130,15 @@ class SickDataset(Dataset):
 
         legend, = plt.plot(x, y, label='Vocabulary size ')
 
-        plt.title(('Current vocabulary size n=' + str(self.vocabulary_size) + ' coverage = ' +"{:.4}".format(current_voc_cov) + '%'),
-                     fontsize=14, fontweight='bold', color='gray')
+        plt.title(('Current vocabulary size n=' + str(self.vocabulary_size) +
+                   ' coverage = ' + "{:.4}".format(current_voc_cov) + '%'),
+                  fontsize=14, fontweight='bold', color='gray')
         plt.suptitle(('Vocabulary coverage'),
                      fontsize=24, fontweight='bold', color='gray')
         plt.xlabel("Size of unique vocabulary", color='gray', fontsize=14)
         plt.ylabel("Vocabulary coverage %", color='gray', fontsize=14)
 
-        ## Plot Swagg ##
+        # Plot Swagg #
         plt.yticks(fontsize=14, rotation=0, color='gray')
         plt.xticks(fontsize=14, rotation=0, color='gray')
 
@@ -158,4 +164,3 @@ class SickDataset(Dataset):
 
     def __len__(self):
         return len(self.df)
-

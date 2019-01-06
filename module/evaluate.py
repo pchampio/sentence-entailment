@@ -7,7 +7,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_recall_fscore_support
 
 import itertools
-import io
 import matplotlib.pyplot as plt
 
 import torch
@@ -16,10 +15,11 @@ import pandas as pd
 
 from module.data import SickDataset
 
+
 def confusion_scores(total_labels, total_pred, writer=None):
-    fig = plt.figure(figsize=(10,10))
+    fig = plt.figure(figsize=(10, 10))
     classes = SickDataset.text_label
-    title='Confusion matrix'
+    title = 'Confusion matrix'
 
     cm = confusion_matrix(total_labels, total_pred, labels=[0, 1, 2])
 
@@ -28,8 +28,10 @@ def confusion_scores(total_labels, total_pred, writer=None):
     plt.title(title, color='gray', fontsize=24)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, [c.lower() for c in classes], rotation=45 , style='italic', color='gray', fontsize=17)
-    plt.yticks(tick_marks, [c.lower() for c in classes], color='gray', style='italic', fontsize=17)
+    plt.xticks(tick_marks, [c.lower() for c in classes], rotation=45,
+               style='italic', color='gray', fontsize=17)
+    plt.yticks(tick_marks, [c.lower() for c in classes], color='gray',
+               style='italic', fontsize=17)
 
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
@@ -41,11 +43,12 @@ def confusion_scores(total_labels, total_pred, writer=None):
     plt.xlabel('Predicted label', color='gray', fontsize=19)
     plt.tight_layout()
     plt.show()
-    if writer != None:
+    if writer is not None:
         writer.add_figure('plt/confusion_matrix', fig, 0)
 
 
-def evaluate(model, loader, whileTraining=False, criterion=None, writer=None, device="cpu"):
+def evaluate(model, loader, whileTraining=False, criterion=None,
+             writer=None, device="cpu"):
     """
     Displays the confusion_matrix the precision recall fscore
     If in whileTrainnig Mode only return the accuracy and loss
@@ -63,34 +66,36 @@ def evaluate(model, loader, whileTraining=False, criterion=None, writer=None, de
 
                 output = model(data)
 
-                if whileTraining and criterion != None:
+                if whileTraining and criterion is not None:
                     loss = criterion(output, target)
-                    train_loss_batches +=loss.cpu().detach().numpy()
+                    train_loss_batches += loss.cpu().detach().numpy()
                     train_loss_batches_count += 1
 
-                # Get the Accuracy
+                # Get the predicted
                 _, predicted = torch.max(output.data, dim=1)
-                correct = (predicted == target).sum().item()
 
                 total_labels = torch.cat((total_labels, target.cpu()))
                 total_pred = torch.cat((total_pred, predicted.cpu()))
 
-
         model.train()
-        if whileTraining and criterion!=None:
-            return ((accuracy_score(total_labels.flatten().numpy(), total_pred.flatten().numpy()) * 100), train_loss_batches / train_loss_batches_count)
-
+        if whileTraining and criterion is not None:
+            return ((accuracy_score(total_labels.flatten().numpy(),
+                                    total_pred.flatten().numpy()) * 100),
+                    train_loss_batches / train_loss_batches_count)
 
         confusion_scores(total_labels, total_pred, writer=writer)
 
-        print("Accuracy:  {:.4f}".format(accuracy_score(total_labels, total_pred)))
+        print("Accuracy:  {:.4f}".format(accuracy_score(total_labels,
+                                                        total_pred)))
 
-        # compute per-label precisions, recalls, F1-scores, and supports instead of averaging
+        # compute per-label precisions, recalls, F1-scores, and supports
+        # instead of averaging
         metrics = precision_recall_fscore_support(
                                         total_labels, total_pred,
                                         average=None, labels=[0, 1, 2])
 
-        df = pd.DataFrame(list(metrics), index=['Precision', 'Recall', 'Fscore', 'support'],
-                                   columns=SickDataset.text_label)
+        df = pd.DataFrame(list(metrics), index=['Precision', 'Recall',
+                                                'Fscore', 'support'],
+                          columns=SickDataset.text_label)
         df = df.drop(['support'], axis=0)
         print(df.T)
