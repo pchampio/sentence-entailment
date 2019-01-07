@@ -13,7 +13,7 @@ import torch
 import numpy as np
 import pandas as pd
 
-from module.data import SickDataset
+from module.data import SickDatasetBase as SickDataset
 
 
 def confusion_scores(total_labels, total_pred, writer=None):

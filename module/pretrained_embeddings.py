@@ -47,4 +47,5 @@ def load_embedding(sick_dataset_train, embeddings_size=50,
           str(pretrained_emb.vectors.size()))
     print("Adapted:    Pretained Embedding matrix: " +
           str(pretrained_emb_vec.size()))
+    print()
     return pretrained_emb_vec

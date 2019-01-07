@@ -11,12 +11,14 @@ from tensorboardX import SummaryWriter
 # #----------------------------------------#
 #  Change import to change the architecture
 # #----------------------------------------#
-from module.data import SickDatasetBase as SickDataset
-from module.to_batch import pad_collate_single_sentence as pad_collate
-from module.models import RNNClassifierBase as RNNClassifier
 
-#  from module.data import SickDatasetDouble as SickDataset
-#  from module.to_batch import pad_collate_double_sentence as pad_collate
+#  from module.data import SickDatasetBase as SickDataset
+#  from module.to_batch import pad_collate_single_sentence as pad_collate
+#  from module.models import RNNClassifierBase as RNNClassifier
+
+from module.data import SickDatasetDouble as SickDataset
+from module.to_batch import pad_collate_double_sentence as pad_collate
+from module.models import RNNClassifierDouble as RNNClassifier
 
 # #----------------------------------------#
 
@@ -28,7 +30,7 @@ pd.set_option("display.width", 280)
 pd.set_option('max_colwidth', 50)
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
-NUM_EPOCHS = 4
+NUM_EPOCHS = 40
 BATCH_SIZE = 4
 VOCABULARY_SIZE = 1500
 
@@ -41,7 +43,7 @@ writer = SummaryWriter()
 #######################
 
 
-df_train = pd.read_csv("./sick_train/SICK_train.txt", sep="\t")[:2000]
+df_train = pd.read_csv("./sick_train/SICK_train.txt", sep="\t")
 df_train = df_train.drop(['relatedness_score'], axis=1)
 
 df_dev = pd.read_csv("./sick_trial/SICK_trial.txt", sep="\t")
@@ -101,10 +103,7 @@ test_loader = DataLoader(dataset=sick_dataset_test,
                          batch_size=1, shuffle=False)
 
 # Debug the padding
-# # has padding (sample of same size padded with 0)
-print([x for x in enumerate(train_loader)][0])
-# # no batch == no padding
-# print([x for x in enumerate(dev_loader)][0])
+#  print([x for x in enumerate(train_loader)][0])
 print()
 
 ################
@@ -147,6 +146,7 @@ for epoch in range(NUM_EPOCHS):
         target = target.to(device)
 
         output = rnn(data)
+        #  output = rnn(data, print)
 
         loss = criterion(output, target)
 
