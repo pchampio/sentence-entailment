@@ -30,8 +30,8 @@ pd.set_option("display.width", 280)
 pd.set_option('max_colwidth', 50)
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
-NUM_EPOCHS = 40
-BATCH_SIZE = 4
+NUM_EPOCHS = 1
+BATCH_SIZE = 1
 VOCABULARY_SIZE = 1500
 
 
@@ -43,7 +43,7 @@ writer = SummaryWriter()
 #######################
 
 
-df_train = pd.read_csv("./sick_train/SICK_train.txt", sep="\t")
+df_train = pd.read_csv("./sick_train/SICK_train.txt", sep="\t")[:1000]
 df_train = df_train.drop(['relatedness_score'], axis=1)
 
 df_dev = pd.read_csv("./sick_trial/SICK_trial.txt", sep="\t")

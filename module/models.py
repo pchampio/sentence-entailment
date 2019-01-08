@@ -3,14 +3,13 @@
 
 from torch import nn
 import torch
+from einops import rearrange, reduce
 
 
 def _vprint(*args, **kwargs): None
 
 
 class RNNClassifierBase(nn.Module):
-    # Our model
-
     def __init__(self, input_voc_size, embedding_size, hidden_size,
                  device="cpu"):
         super(RNNClassifierBase, self).__init__()
@@ -84,8 +83,6 @@ class RNNClassifierBase(nn.Module):
 
 
 class RNNClassifierDouble(nn.Module):
-    # Our model
-
     def __init__(self, input_voc_size, embedding_size, hidden_size,
                  device="cpu"):
         super(RNNClassifierDouble, self).__init__()
@@ -121,7 +118,16 @@ class RNNClassifierDouble(nn.Module):
               bidirectional=True,
         )
 
-        self.fc1 = nn.Linear(self.rnn_out_size, self.num_classes)
+        self.conv = torch.nn.Conv1d(
+            in_channels=2,  # BiRNN
+            out_channels=100,
+            kernel_size=self.hidden_size*4,
+            stride=self.hidden_size
+        )
+
+        self.relu = nn.ReLU()
+
+        self.fc1 = nn.Linear(100, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
     # input shape: B x S (input size)
@@ -153,8 +159,31 @@ class RNNClassifierDouble(nn.Module):
         # Propagate embedding through RNN
         # Input: (batch, seq_len, embedding_size)
         # h_0: (num_layers * num_directions, batch, hidden_size)
-        _, hidden_a = self.rnn_1(emb_a, h_0_a)
-        _, hidden_b = self.rnn_2(emb_b, h_0_b)
+        output_a, hidden_a = self.rnn_1(emb_a, h_0_a)
+        output_b, hidden_b = self.rnn_2(emb_b, h_0_b)
+
+        XX = rearrange(output_a, "batch seqlen (dir out) -> batch dir (seqlen out)", out=20)  # noqa: E501
+
+        vprint(output_a.shape)
+        vprint(XX.shape)
+        YY = self.conv(XX)
+        vprint(YY.shape)
+        #  print(YY)
+
+        RR = reduce(YY, "batch channels out -> batch channels", 'max')
+        vprint(RR.shape)
+        vprint(self.relu(RR).shape)
+        vprint()
+
+        # Use the last layer output as FC's input
+        layout_fc1 = self.fc1(self.relu(RR))
+        vprint("size layout fc1", layout_fc1.size())
+
+        fc_output = self.softmax(layout_fc1)
+
+        return fc_output
+
+        exit()
 
         vprint("size hidden", hidden_a.size())
 

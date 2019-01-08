@@ -14,23 +14,29 @@ import numpy as np
 import pandas as pd
 
 from module.data import SickDatasetBase as SickDataset
+from module.utils import print_cm
 
 
 def confusion_scores(total_labels, total_pred, writer=None):
-    fig = plt.figure(figsize=(10, 10))
-    classes = SickDataset.text_label
-    title = 'Confusion matrix'
-
     cm = confusion_matrix(total_labels, total_pred, labels=[0, 1, 2])
+    labels = SickDataset.text_label
+
+    # Terminal
+    print_cm(cm, labels)
+
+    # Pretty
+
+    fig = plt.figure(figsize=(10, 10))
+    title = 'Confusion matrix'
 
     plt.rcParams["figure.figsize"] = [10, 10]
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
     plt.title(title, color='gray', fontsize=24)
     plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, [c.lower() for c in classes], rotation=45,
+    tick_marks = np.arange(len(labels))
+    plt.xticks(tick_marks, [c.lower() for c in labels], rotation=45,
                style='italic', color='gray', fontsize=17)
-    plt.yticks(tick_marks, [c.lower() for c in classes], color='gray',
+    plt.yticks(tick_marks, [c.lower() for c in labels], color='gray',
                style='italic', fontsize=17)
 
     thresh = cm.max() / 2.
@@ -42,7 +48,7 @@ def confusion_scores(total_labels, total_pred, writer=None):
     plt.ylabel('True label', color='gray', fontsize=19)
     plt.xlabel('Predicted label', color='gray', fontsize=19)
     plt.tight_layout()
-    plt.show()
+    #  plt.show()
     if writer is not None:
         writer.add_figure('plt/confusion_matrix', fig, 0)
 
