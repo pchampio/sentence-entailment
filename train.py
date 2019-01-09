@@ -30,8 +30,8 @@ pd.set_option("display.width", 280)
 pd.set_option('max_colwidth', 50)
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
-NUM_EPOCHS = 40
-BATCH_SIZE = 4
+NUM_EPOCHS = 200
+BATCH_SIZE = 8
 VOCABULARY_SIZE = 1500
 
 

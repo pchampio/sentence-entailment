@@ -93,7 +93,7 @@ class RNNClassifierDouble(nn.Module):
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
-        self.rnn_out_size = hidden_size * 2
+        self.rnn_out_size = hidden_size * 8
         self.device = device
 
         self.num_classes = 3
@@ -121,7 +121,9 @@ class RNNClassifierDouble(nn.Module):
               bidirectional=True,
         )
 
-        self.fc1 = nn.Linear(self.rnn_out_size, self.num_classes)
+        self.dropout_1 = nn.Dropout(p=0.3)
+        self.fc1 = nn.Linear(self.rnn_out_size, 40)
+        self.fc2 = nn.Linear(40, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
     # input shape: B x S (input size)
@@ -162,12 +164,28 @@ class RNNClassifierDouble(nn.Module):
         rnn_out_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
         vprint("size rnn out", rnn_out_a.size())
 
-        rnn_join = torch.max(rnn_out_a, rnn_out_b)
+        # Matching methods to create to extract relation between two sentence representations
+        # Concatenation (u, v)
+        rnn_concat = torch.cat((rnn_out_a, rnn_out_b), 1)
+
+        # Element wise product u * v
+        rnn_prod = rnn_out_a * rnn_out_b
+
+        # Element wise absolute difference |u - v|
+        rnn_diff = torch.abs(rnn_out_a - rnn_out_b)
+
+        # Concatenation of all methods
+        rnn_join = torch.cat((rnn_concat, rnn_prod, rnn_diff), 1)
+
+        rnn_dropped = self.dropout_1(rnn_join)
 
         # Use the last layer output as FC's input
-        layout_fc1 = self.fc1(rnn_join)
+        layout_fc1 = self.fc1(rnn_dropped)
         vprint("size layout fc1", layout_fc1.size())
 
-        fc_output = self.softmax(layout_fc1)
+        layout_fc2 = self.fc2(layout_fc1)
+        vprint("size layout fc2", layout_fc2.size())
+
+        fc_output = self.softmax(layout_fc2)
 
         return fc_output
