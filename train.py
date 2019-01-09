@@ -31,7 +31,7 @@ pd.set_option('max_colwidth', 50)
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
 NUM_EPOCHS = 200
-BATCH_SIZE = 8
+BATCH_SIZE = 16
 VOCABULARY_SIZE = 1500
 
 
@@ -70,15 +70,15 @@ sick_dataset_train.pprint()
 #####################
 #  Pretrained Embs  #
 #####################
-embeddings_size = 20
+embeddings_size = 50
 
 
 print()
 
-# pretrained_emb_vec = load_embedding(
-#     sick_dataset_train,
-#     embeddings_size=embeddings_size,
-#     vocabulary_size=VOCABULARY_SIZE)
+pretrained_emb_vec = load_embedding(
+    sick_dataset_train,
+    embeddings_size=embeddings_size,
+    vocabulary_size=VOCABULARY_SIZE)
 
 
 # Debug
@@ -111,7 +111,7 @@ print()
 ################
 
 # Add the unknown token (+1 to voc_size)
-rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 15, device=device)
+rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 10, device=device)
 rnn.to(device)
 print(rnn)
 
