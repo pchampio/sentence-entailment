@@ -121,7 +121,7 @@ class RNNClassifierDouble(nn.Module):
               bidirectional=True,
         )
 
-        self.dropout_1 = nn.Dropout(p=0.3)
+        self.dropout_1 = nn.Dropout(p=0.8)
         #self.fc1 = nn.Linear(self.rnn_out_size, 10)
         self.fc2 = nn.Linear(self.rnn_out_size, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
