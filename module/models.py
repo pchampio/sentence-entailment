@@ -118,10 +118,10 @@ class RNNClassifierDouble(nn.Module):
               bidirectional=True,
         )
 
-        self.conv = torch.nn.Conv1d(
+        self.conv = nn.Conv1d(
             in_channels=2,  # BiRNN
             out_channels=100,
-            kernel_size=self.hidden_size*4,
+            kernel_size=self.hidden_size*3,
             stride=self.hidden_size
         )
 
@@ -162,39 +162,21 @@ class RNNClassifierDouble(nn.Module):
         output_a, hidden_a = self.rnn_1(emb_a, h_0_a)
         output_b, hidden_b = self.rnn_2(emb_b, h_0_b)
 
-        XX = rearrange(output_a, "batch seqlen (dir out) -> batch dir (seqlen out)", out=20)  # noqa: E501
+        rearrange_ops = "batch seqlen (dir out) -> batch dir (seqlen out)"
+        rearrange_a = rearrange(output_a, rearrange_ops, out=20)  # noqa: E501
+        rearrange_b = rearrange(output_b, rearrange_ops, out=20)  # noqa: E501
 
-        vprint(output_a.shape)
-        vprint(XX.shape)
-        YY = self.conv(XX)
-        vprint(YY.shape)
-        #  print(YY)
+        rea_ab = rearrange([rearrange_a, rearrange_b], "a b c d -> b c (a d)")
 
-        RR = reduce(YY, "batch channels out -> batch channels", 'max')
-        vprint(RR.shape)
-        vprint(self.relu(RR).shape)
-        vprint()
+        conv = self.conv(rea_ab)
+        vprint(conv.shape)
 
-        # Use the last layer output as FC's input
-        layout_fc1 = self.fc1(self.relu(RR))
-        vprint("size layout fc1", layout_fc1.size())
+        pool = reduce(conv, "batch channels out -> batch channels", 'max')
 
-        fc_output = self.softmax(layout_fc1)
-
-        return fc_output
-
-        exit()
-
-        vprint("size hidden", hidden_a.size())
-
-        rnn_out_a = torch.cat((hidden_a[0], hidden_a[1]), 1)
-        rnn_out_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
-        vprint("size rnn out", rnn_out_a.size())
-
-        rnn_join = torch.max(rnn_out_a, rnn_out_b)
+        relu = self.relu(pool)
+        layout_fc1 = self.fc1(relu)
 
         # Use the last layer output as FC's input
-        layout_fc1 = self.fc1(rnn_join)
         vprint("size layout fc1", layout_fc1.size())
 
         fc_output = self.softmax(layout_fc1)
