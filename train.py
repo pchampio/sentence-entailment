@@ -33,6 +33,7 @@ device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 NUM_EPOCHS = 60
 BATCH_SIZE = 4
 VOCABULARY_SIZE = 1500
+EMBEDDINGS_SIZE = 300
 
 
 # ## Board ###
@@ -70,14 +71,13 @@ sick_dataset_train.pprint()
 #####################
 #  Pretrained Embs  #
 #####################
-embeddings_size = 50
 
 
 print()
 
 pretrained_emb_vec = load_embedding(
     sick_dataset_train,
-    embeddings_size=embeddings_size,
+    embeddings_size=EMBEDDINGS_SIZE,
     vocabulary_size=VOCABULARY_SIZE)
 
 
@@ -111,16 +111,17 @@ print()
 ################
 
 # Add the unknown token (+1 to voc_size)
-rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 20, device=device)
+rnn = RNNClassifier(VOCABULARY_SIZE+1, EMBEDDINGS_SIZE, 20, device=device)
 rnn.to(device)
 print(rnn)
 
 # Set loss and optimizer function
 # CrossEntropyLoss = LogSoftmax + NLLLoss
-weights = [1-((sick_dataset_train.df['entailment_id'] == i).sum() /
-              len(sick_dataset_train)) for i in range(3)]
-class_weights = torch.FloatTensor(weights).to(device)
-criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
+#  weights = [1-((sick_dataset_train.df['entailment_id'] == i).sum() /
+              #  len(sick_dataset_train)) for i in range(3)]
+#  class_weights = torch.FloatTensor(weights).to(device)
+criterion = torch.nn.CrossEntropyLoss()
+#  criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
 optimizer = torch.optim.Adam(rnn.parameters(), lr=0.001)
 

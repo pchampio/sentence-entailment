@@ -90,7 +90,6 @@ class RNNClassifierDouble(nn.Module):
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
-        self.rnn_out_size = hidden_size * 2
         self.device = device
 
         self.num_classes = 3
@@ -118,16 +117,18 @@ class RNNClassifierDouble(nn.Module):
               bidirectional=True,
         )
 
+        self.dropout = nn.Dropout(p=.3)
+
         self.conv = nn.Conv1d(
             in_channels=2,  # BiRNN
-            out_channels=100,
+            out_channels=1024,
             kernel_size=self.hidden_size*3,
             stride=self.hidden_size
         )
 
         self.relu = nn.ReLU()
 
-        self.fc1 = nn.Linear(100, self.num_classes)
+        self.fc1 = nn.Linear(1024, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
     # input shape: B x S (input size)
@@ -168,7 +169,9 @@ class RNNClassifierDouble(nn.Module):
 
         rea_ab = rearrange([rearrange_a, rearrange_b], "a b c d -> b c (a d)")
 
-        conv = self.conv(rea_ab)
+        rea_ab_d = self.dropout(rea_ab)
+
+        conv = self.conv(rea_ab_d)
         vprint(conv.shape)
 
         pool = reduce(conv, "batch channels out -> batch channels", 'max')
