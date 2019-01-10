@@ -70,7 +70,7 @@ sick_dataset_train.pprint()
 #####################
 #  Pretrained Embs  #
 #####################
-embeddings_size = 25
+embeddings_size = 50
 
 
 print()
