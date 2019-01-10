@@ -108,13 +108,7 @@ class RNNClassifierDouble(nn.Module):
         # embeddings fine-tuning
         self.embedding.weight.requires_grad = False
 
-        self.rnn_1 = nn.GRU(
-              input_size=embedding_size,
-              hidden_size=hidden_size,
-              batch_first=True,
-              bidirectional=True,
-        )
-        self.rnn_2 = nn.GRU(
+        self.rnn = nn.GRU(
               input_size=embedding_size,
               hidden_size=hidden_size,
               batch_first=True,
@@ -122,7 +116,7 @@ class RNNClassifierDouble(nn.Module):
         )
 
         self.dropout_1 = nn.Dropout(p=0.8)
-        #self.fc1 = nn.Linear(self.rnn_out_size, 10)
+        # self.fc1 = nn.Linear(self.rnn_out_size, 10)
         self.fc2 = nn.Linear(self.rnn_out_size, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
@@ -155,8 +149,8 @@ class RNNClassifierDouble(nn.Module):
         # Propagate embedding through RNN
         # Input: (batch, seq_len, embedding_size)
         # h_0: (num_layers * num_directions, batch, hidden_size)
-        _, hidden_a = self.rnn_1(emb_a, h_0_a)
-        _, hidden_b = self.rnn_2(emb_b, h_0_b)
+        _, hidden_a = self.rnn(emb_a, h_0_a)
+        _, hidden_b = self.rnn(emb_b, h_0_b)
 
         vprint("size hidden", hidden_a.size())
 
@@ -164,11 +158,11 @@ class RNNClassifierDouble(nn.Module):
         rnn_out_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
         vprint("size rnn out", rnn_out_a.size())
 
-        # Matching methods to create to extract relation between two sentence representations
+        # Matching methods to create to extract relation between two sentence representations # noqa: E501
         # Concatenation (u, v)
         rnn_concat = torch.cat((rnn_out_a, rnn_out_b), 1)
 
-        # Element wise product u * v
+        # Element wise product u * vs
         rnn_prod = rnn_out_a * rnn_out_b
 
         # Element wise absolute difference |u - v|
@@ -180,8 +174,8 @@ class RNNClassifierDouble(nn.Module):
         rnn_dropped = self.dropout_1(rnn_join)
 
         # Use the last layer output as FC's input
-        #layout_fc1 = self.fc1(rnn_dropped)
-        #vprint("size layout fc1", layout_fc1.size())
+        # layout_fc1 = self.fc1(rnn_dropped)
+        # vprint("size layout fc1", layout_fc1.size())
 
         layout_fc2 = self.fc2(rnn_dropped)
         vprint("size layout fc2", layout_fc2.size())
