@@ -70,15 +70,15 @@ sick_dataset_train.pprint()
 #####################
 #  Pretrained Embs  #
 #####################
-embeddings_size = 50
+embeddings_size = 25
 
 
 print()
 
-pretrained_emb_vec = load_embedding(
-    sick_dataset_train,
-    embeddings_size=embeddings_size,
-    vocabulary_size=VOCABULARY_SIZE)
+# pretrained_emb_vec = load_embedding(
+#     sick_dataset_train,
+#     embeddings_size=embeddings_size,
+#     vocabulary_size=VOCABULARY_SIZE)
 
 
 # Debug
