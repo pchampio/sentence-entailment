@@ -111,7 +111,7 @@ print()
 ################
 
 # Add the unknown token (+1 to voc_size)
-rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 20, device=device)
+rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 10, device=device)
 rnn.to(device)
 print(rnn)
 
