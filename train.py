@@ -75,10 +75,10 @@ embeddings_size = 25
 
 print()
 
-# pretrained_emb_vec = load_embedding(
-#     sick_dataset_train,
-#     embeddings_size=embeddings_size,
-#     vocabulary_size=VOCABULARY_SIZE)
+pretrained_emb_vec = load_embedding(
+    sick_dataset_train,
+    embeddings_size=embeddings_size,
+    vocabulary_size=VOCABULARY_SIZE)
 
 
 # Debug
@@ -111,7 +111,7 @@ print()
 ################
 
 # Add the unknown token (+1 to voc_size)
-rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 10, device=device)
+rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 30, device=device)
 rnn.to(device)
 print(rnn)
 
@@ -122,7 +122,7 @@ weights = [1-((sick_dataset_train.df['entailment_id'] == i).sum() /
 class_weights = torch.FloatTensor(weights).to(device)
 criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
-optimizer = torch.optim.Adam(rnn.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(rnn.parameters(), lr=0.005)
 
 ##########
 #  Loop  #
