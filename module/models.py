@@ -10,14 +10,14 @@ def _vprint(*args, **kwargs): None
 
 
 class RNNClassifierBase(nn.Module):
-    def __init__(self, input_voc_size, embedding_size, hidden_size,
+    def __init__(self, input_voc_size, embedding_size,
                  device="cpu"):
         super(RNNClassifierBase, self).__init__()
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = hidden_size
-        self.rnn_out_size = hidden_size * 2
+        self.hidden_size = 20
+        self.rnn_out_size = self.hidden_size * 2
         self.device = device
 
         self.num_classes = 3
@@ -34,7 +34,7 @@ class RNNClassifierBase(nn.Module):
 
         self.rnn = nn.GRU(
               input_size=embedding_size,
-              hidden_size=hidden_size,
+              hidden_size=self.hidden_size,
               batch_first=True,
               bidirectional=True,
         )
@@ -83,13 +83,13 @@ class RNNClassifierBase(nn.Module):
 
 
 class RNNClassifierDouble(nn.Module):
-    def __init__(self, input_voc_size, embedding_size, hidden_size,
+    def __init__(self, input_voc_size, embedding_size,
                  device="cpu"):
         super(RNNClassifierDouble, self).__init__()
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = hidden_size
+        self.hidden_size = 742
         self.device = device
 
         self.num_classes = 3
@@ -104,31 +104,24 @@ class RNNClassifierDouble(nn.Module):
         # embeddings fine-tuning
         self.embedding.weight.requires_grad = False
 
-        self.rnn_1 = nn.GRU(
+        self.rnn = nn.GRU(
               input_size=embedding_size,
-              hidden_size=hidden_size,
+              hidden_size=self.hidden_size,
               batch_first=True,
+              dropout=0.5,
               bidirectional=True,
         )
-        self.rnn_2 = nn.GRU(
-              input_size=embedding_size,
-              hidden_size=hidden_size,
-              batch_first=True,
-              bidirectional=True,
-        )
-
-        self.dropout = nn.Dropout(p=.3)
 
         self.conv = nn.Conv1d(
             in_channels=2,  # BiRNN
-            out_channels=1024,
-            kernel_size=self.hidden_size*3,
+            out_channels=1012,
+            kernel_size=self.hidden_size,
             stride=self.hidden_size
         )
 
         self.relu = nn.ReLU()
 
-        self.fc1 = nn.Linear(1024, self.num_classes)
+        self.fc1 = nn.Linear(1012, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
     # input shape: B x S (input size)
@@ -160,18 +153,16 @@ class RNNClassifierDouble(nn.Module):
         # Propagate embedding through RNN
         # Input: (batch, seq_len, embedding_size)
         # h_0: (num_layers * num_directions, batch, hidden_size)
-        output_a, hidden_a = self.rnn_1(emb_a, h_0_a)
-        output_b, hidden_b = self.rnn_2(emb_b, h_0_b)
+        output_a, hidden_a = self.rnn(emb_a, h_0_a)
+        output_b, hidden_b = self.rnn(emb_b, h_0_b)
 
         rearrange_ops = "batch seqlen (dir out) -> batch dir (seqlen out)"
-        rearrange_a = rearrange(output_a, rearrange_ops, out=20)  # noqa: E501
-        rearrange_b = rearrange(output_b, rearrange_ops, out=20)  # noqa: E501
+        rearrange_a = rearrange(output_a, rearrange_ops, out=self.hidden_size)  # noqa: E501
+        rearrange_b = rearrange(output_b, rearrange_ops, out=self.hidden_size)  # noqa: E501
 
         rea_ab = rearrange([rearrange_a, rearrange_b], "a b c d -> b c (a d)")
 
-        rea_ab_d = self.dropout(rea_ab)
-
-        conv = self.conv(rea_ab_d)
+        conv = self.conv(rea_ab)
         vprint(conv.shape)
 
         pool = reduce(conv, "batch channels out -> batch channels", 'max')
