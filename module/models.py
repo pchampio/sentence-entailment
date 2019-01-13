@@ -92,7 +92,7 @@ class RNNClassifierDouble(nn.Module):
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = 200
+        self.hidden_size = 40
         self.rnn_out_size = self.hidden_size * 8
         self.device = device
 
@@ -174,10 +174,10 @@ class RNNClassifierDouble(nn.Module):
         rnn_dropped = self.dropout_1(rnn_join)
 
         # Use the last layer output as FC's input
-        layout_fc1 = self.fc1(rnn_dropped)
-        vprint("size layout fc1", layout_fc1.size())
+        # layout_fc1 = self.fc1(rnn_dropped)
+        # vprint("size layout fc1", layout_fc1.size())
 
-        layout_fc2 = self.fc2(layout_fc1)
+        layout_fc2 = self.fc2(rnn_dropped)
         vprint("size layout fc2", layout_fc2.size())
 
         fc_output = self.softmax(layout_fc2)
