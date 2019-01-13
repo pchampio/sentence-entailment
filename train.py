@@ -30,10 +30,11 @@ pd.set_option("display.width", 280)
 pd.set_option('max_colwidth', 50)
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
-NUM_EPOCHS = 70
-BATCH_SIZE = 4
+NUM_EPOCHS = 30
+BATCH_SIZE = 8
 VOCABULARY_SIZE = 1500
 EMBEDDINGS_SIZE = 300
+LR=0.0001
 
 
 # ## Board ###
@@ -125,7 +126,7 @@ class_weights = torch.FloatTensor(weights).to(device)
 #  criterion = torch.nn.CrossEntropyLoss()
 criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
-optimizer = torch.optim.Adam(rnn.parameters(), lr=0.0001)
+optimizer = torch.optim.Adam(rnn.parameters(), lr=LR)
 
 ##########
 #  Loop  #

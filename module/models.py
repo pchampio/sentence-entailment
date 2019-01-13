@@ -89,7 +89,7 @@ class RNNClassifierDouble(nn.Module):
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = 742
+        self.hidden_size = 400
         self.device = device
 
         self.num_classes = 3
@@ -108,20 +108,21 @@ class RNNClassifierDouble(nn.Module):
               input_size=embedding_size,
               hidden_size=self.hidden_size,
               batch_first=True,
-              dropout=0.5,
+              dropout=0.4,
               bidirectional=True,
+              num_layers=2
         )
 
         self.conv = nn.Conv1d(
             in_channels=2,  # BiRNN
-            out_channels=1012,
-            kernel_size=self.hidden_size,
+            out_channels=200,
+            kernel_size=self.hidden_size*4,
             stride=self.hidden_size
         )
 
         self.relu = nn.ReLU()
 
-        self.fc1 = nn.Linear(1012, self.num_classes)
+        self.fc1 = nn.Linear(200, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
     # input shape: B x S (input size)
@@ -135,8 +136,8 @@ class RNNClassifierDouble(nn.Module):
 
         # Initialize hidden (num_layers * num_directions, batch_size,
         # hidden_size)
-        h_0_a = torch.zeros(2, batch_size, self.hidden_size)
-        h_0_b = torch.zeros(2, batch_size, self.hidden_size)
+        h_0_a = torch.zeros(4, batch_size, self.hidden_size)
+        h_0_b = torch.zeros(4, batch_size, self.hidden_size)
         vprint("size hidden init", h_0_a.size())
 
         # When creating new variables inside a model (like the hidden state in
