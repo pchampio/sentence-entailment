@@ -116,8 +116,8 @@ class RNNClassifierDouble(nn.Module):
         )
 
         self.dropout_1 = nn.Dropout(p=0.3)
-        #self.fc1 = nn.Linear(self.rnn_out_size, 20)
-        self.fc2 = nn.Linear(self.rnn_out_size, self.num_classes)
+        self.fc1 = nn.Linear(self.rnn_out_size, 20)
+        self.fc2 = nn.Linear(20, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
 
     # input shape: B x S (input size)
@@ -174,8 +174,8 @@ class RNNClassifierDouble(nn.Module):
         rnn_dropped = self.dropout_1(rnn_join)
 
         # Use the last layer output as FC's input
-        # layout_fc1 = self.fc1(rnn_dropped)
-        # vprint("size layout fc1", layout_fc1.size())
+        layout_fc1 = self.fc1(rnn_dropped)
+        vprint("size layout fc1", layout_fc1.size())
 
         layout_fc2 = self.fc2(rnn_dropped)
         vprint("size layout fc2", layout_fc2.size())
