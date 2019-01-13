@@ -5,8 +5,9 @@ from torch import nn
 import torch
 
 
+# def _vprint(*args, **kwargs): print(*args)
 def _vprint(*args, **kwargs): None
-
+ 
 
 class RNNClassifierBase(nn.Module):
     # Our model
@@ -149,13 +150,21 @@ class RNNClassifierDouble(nn.Module):
         # Propagate embedding through RNN
         # Input: (batch, seq_len, embedding_size)
         # h_0: (num_layers * num_directions, batch, hidden_size)
-        _, hidden_a = self.rnn(emb_a, h_0_a)
-        _, hidden_b = self.rnn(emb_b, h_0_b)
+        hiddens_a, _ = self.rnn(emb_a, h_0_a)
+        hiddens_b, _ = self.rnn(emb_b, h_0_b)
 
-        vprint("size hidden", hidden_a.size())
+        vprint("size hiddens_a", hiddens_a.size())
+        vprint("hiddens_a", hiddens_a)
+        hiddens_max_a = torch.max(hiddens_a, 1)[0]
+        hiddens_max_b = torch.max(hiddens_b, 1)[0]
+        vprint("hiddens_max_a", hiddens_max_a)
+        vprint("size hiddens_max_a", hiddens_max_a.size())
+        
+        rnn_out_a = hiddens_max_a
+        rnn_out_b = hiddens_max_b
 
-        rnn_out_a = torch.cat((hidden_a[0], hidden_a[1]), 1)
-        rnn_out_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
+        # rnn_out_a = torch.cat((hidden_a[0], hidden_a[1]), 1)
+        # rnn_out_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
         vprint("size rnn out", rnn_out_a.size())
 
         # Matching methods to create to extract relation between two sentence representations # noqa: E501
