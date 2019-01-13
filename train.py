@@ -30,8 +30,8 @@ pd.set_option("display.width", 280)
 pd.set_option('max_colwidth', 50)
 device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 
-NUM_EPOCHS = 200
-BATCH_SIZE = 16
+NUM_EPOCHS = 100
+BATCH_SIZE = 8
 VOCABULARY_SIZE = 1500
 
 
@@ -70,7 +70,7 @@ sick_dataset_train.pprint()
 #####################
 #  Pretrained Embs  #
 #####################
-embeddings_size = 50
+embeddings_size = 300
 
 
 print()
@@ -111,7 +111,7 @@ print()
 ################
 
 # Add the unknown token (+1 to voc_size)
-rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 30, device=device)
+rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 200, device=device)
 rnn.to(device)
 print(rnn)
 
@@ -122,7 +122,7 @@ weights = [1-((sick_dataset_train.df['entailment_id'] == i).sum() /
 class_weights = torch.FloatTensor(weights).to(device)
 criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
-optimizer = torch.optim.Adam(rnn.parameters(), lr=0.005)
+optimizer = torch.optim.Adam(rnn.parameters(), lr=0.001)
 
 ##########
 #  Loop  #
