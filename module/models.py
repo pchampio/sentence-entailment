@@ -93,8 +93,8 @@ class RNNClassifierDouble(nn.Module):
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = 150
-        self.rnn_out_size = self.hidden_size * 8
+        self.hidden_size = 20
+        self.rnn_out_size = self.hidden_size * 16
         self.device = device
 
         self.num_classes = 3
@@ -150,8 +150,8 @@ class RNNClassifierDouble(nn.Module):
         # Propagate embedding through RNN
         # Input: (batch, seq_len, embedding_size)
         # h_0: (num_layers * num_directions, batch, hidden_size)
-        hiddens_a, _ = self.rnn(emb_a, h_0_a)
-        hiddens_b, _ = self.rnn(emb_b, h_0_b)
+        hiddens_a, hidden_a = self.rnn(emb_a, h_0_a)
+        hiddens_b, hidden_b = self.rnn(emb_b, h_0_b)
 
         vprint("size hiddens_a", hiddens_a.size())
         vprint("hiddens_a", hiddens_a)
@@ -159,9 +159,12 @@ class RNNClassifierDouble(nn.Module):
         hiddens_max_b = torch.max(hiddens_b, 1)[0]
         vprint("hiddens_max_a", hiddens_max_a)
         vprint("size hiddens_max_a", hiddens_max_a.size())
-        
-        rnn_out_a = hiddens_max_a
-        rnn_out_b = hiddens_max_b
+
+        last_hidden_a = torch.cat((hidden_a[0], hidden_a[1]), 1)
+        last_hidden_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
+
+        rnn_out_a = torch.cat((hiddens_max_a, last_hidden_a), 1)
+        rnn_out_b = torch.cat((hiddens_max_b, last_hidden_b), 1)
 
         # rnn_out_a = torch.cat((hidden_a[0], hidden_a[1]), 1)
         # rnn_out_b = torch.cat((hidden_b[0], hidden_b[1]), 1)
