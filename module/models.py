@@ -86,14 +86,14 @@ class RNNClassifierBase(nn.Module):
 class RNNClassifierDouble(nn.Module):
     # Our model
 
-    def __init__(self, input_voc_size, embedding_size, hidden_size,
+    def __init__(self, input_voc_size, embedding_size,
                  device="cpu"):
         super(RNNClassifierDouble, self).__init__()
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = hidden_size
-        self.rnn_out_size = hidden_size * 8
+        self.hidden_size = 200
+        self.rnn_out_size = self.hidden_size * 8
         self.device = device
 
         self.num_classes = 3
@@ -110,7 +110,7 @@ class RNNClassifierDouble(nn.Module):
 
         self.rnn = nn.GRU(
               input_size=embedding_size,
-              hidden_size=hidden_size,
+              hidden_size=self.hidden_size,
               batch_first=True,
               bidirectional=True,
         )
