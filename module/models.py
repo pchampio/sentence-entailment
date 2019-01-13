@@ -177,7 +177,7 @@ class RNNClassifierDouble(nn.Module):
         layout_fc1 = self.fc1(rnn_dropped)
         vprint("size layout fc1", layout_fc1.size())
 
-        layout_fc2 = self.fc2(rnn_dropped)
+        layout_fc2 = self.fc2(layout_fc1)
         vprint("size layout fc2", layout_fc2.size())
 
         fc_output = self.softmax(layout_fc2)
