@@ -92,7 +92,7 @@ class RNNClassifierDouble(nn.Module):
 
         self.input_voc_size = input_voc_size
         self.embedding_size = embedding_size
-        self.hidden_size = 20
+        self.hidden_size = 200
         self.rnn_out_size = self.hidden_size * 8
         self.device = device
 
