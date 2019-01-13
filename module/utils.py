@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import numpy as np
 
 
 def force_symlink(file1, file2):
@@ -20,6 +21,7 @@ def find_first(item, vec):
 
 def print_cm(cm, labels, hide_zeroes=False, hide_diagonal=False,
              hide_threshold=None):
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     print()
     """pretty print for confusion matrixes"""
     columnwidth = max([len(x) for x in labels] + [5])  # 5 is value length

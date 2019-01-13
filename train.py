@@ -33,6 +33,8 @@ device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
 NUM_EPOCHS = 100
 BATCH_SIZE = 8
 VOCABULARY_SIZE = 1500
+EMBEDDINGS_SIZE = 300
+LR=0.0001
 
 
 # ## Board ###
@@ -70,14 +72,13 @@ sick_dataset_train.pprint()
 #####################
 #  Pretrained Embs  #
 #####################
-embeddings_size = 300
 
 
 print()
 
 pretrained_emb_vec = load_embedding(
     sick_dataset_train,
-    embeddings_size=embeddings_size,
+    embeddings_size=EMBEDDINGS_SIZE,
     vocabulary_size=VOCABULARY_SIZE)
 
 
@@ -97,10 +98,12 @@ train_loader = DataLoader(dataset=sick_dataset_train,
                           )
 
 dev_loader = DataLoader(dataset=sick_dataset_dev,
-                        batch_size=1, shuffle=False, collate_fn=pad_collate)
+                        batch_size=8, shuffle=False,
+                        collate_fn=pad_collate)
 
 test_loader = DataLoader(dataset=sick_dataset_test,
-                         batch_size=1, shuffle=False)
+                         batch_size=8, shuffle=False,
+                         collate_fn=pad_collate)
 
 # Debug the padding
 #  print([x for x in enumerate(train_loader)][0])
@@ -111,7 +114,7 @@ print()
 ################
 
 # Add the unknown token (+1 to voc_size)
-rnn = RNNClassifier(VOCABULARY_SIZE+1, embeddings_size, 200, device=device)
+rnn = RNNClassifier(VOCABULARY_SIZE+1, EMBEDDINGS_SIZE, device=device)
 rnn.to(device)
 print(rnn)
 
@@ -120,9 +123,10 @@ print(rnn)
 weights = [1-((sick_dataset_train.df['entailment_id'] == i).sum() /
               len(sick_dataset_train)) for i in range(3)]
 class_weights = torch.FloatTensor(weights).to(device)
+
 criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
-optimizer = torch.optim.Adam(rnn.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(rnn.parameters(), lr=LR)
 
 ##########
 #  Loop  #
@@ -221,4 +225,4 @@ print("=> loaded checkpoint epoch {}"
 evaluate(rnn, dev_loader, writer=writer, device=device)
 
 
-# evaluate(rnn, test_loader)
+evaluate(rnn, test_loader, device=device)
