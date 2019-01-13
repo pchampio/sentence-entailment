@@ -116,7 +116,7 @@ class RNNClassifierDouble(nn.Module):
         self.conv = nn.Conv1d(
             in_channels=2,  # BiRNN
             out_channels=200,
-            kernel_size=self.hidden_size*4,
+            kernel_size=self.hidden_size*3,
             stride=self.hidden_size
         )
 
