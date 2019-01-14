@@ -116,7 +116,7 @@ class RNNClassifierDouble(nn.Module):
               bidirectional=True,
         )
 
-        self.dropout_1 = nn.Dropout(p=0.3)
+        # self.dropout_1 = nn.Dropout(p=0.3)
         # self.fc1 = nn.Linear(self.rnn_out_size, 20)
         self.fc2 = nn.Linear(self.rnn_out_size, self.num_classes)
         self.softmax = nn.Softmax(dim=1)
@@ -183,13 +183,13 @@ class RNNClassifierDouble(nn.Module):
         # Concatenation of all methods
         rnn_join = torch.cat((rnn_concat, rnn_prod, rnn_diff), 1)
 
-        rnn_dropped = self.dropout_1(rnn_join)
+        # rnn_dropped = self.dropout_1(rnn_join)
 
         # Use the last layer output as FC's input
         # layout_fc1 = self.fc1(rnn_dropped)
         # vprint("size layout fc1", layout_fc1.size())
 
-        layout_fc2 = self.fc2(rnn_dropped)
+        layout_fc2 = self.fc2(rnn_join)
         vprint("size layout fc2", layout_fc2.size())
 
         fc_output = self.softmax(layout_fc2)
